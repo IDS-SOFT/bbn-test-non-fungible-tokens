@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract NFTTemplate is ERC721Enumerable, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIdCounter;
-
-    // Base URI for metadata (e.g., "https://api.example.com/token/")
     string private _baseTokenURI;
-    event CheckBalance(string text, uint amount);
+    uint256 tokenIdCounter = 0;
+
+    event CheckBalance(uint amount);
 
     constructor(string memory _name, string memory _symbol, string memory baseTokenURI) ERC721(_name, _symbol) {
         _baseTokenURI = baseTokenURI;
@@ -26,9 +23,11 @@ contract NFTTemplate is ERC721Enumerable, Ownable {
     }
 
     function mint(address to) external onlyOwner {
-        uint256 tokenId = _tokenIdCounter.current();
+        require(to != address(0), "Invalid address");
+
+        uint256 tokenId = tokenIdCounter;
         _mint(to, tokenId);
-        _tokenIdCounter.increment();
+        tokenIdCounter +=1;
     }
 
     function burn(uint256 tokenId) external onlyOwner {
@@ -36,11 +35,8 @@ contract NFTTemplate is ERC721Enumerable, Ownable {
     }
     
     function getBalance(address user_account) external returns (uint){
-    
-       string memory data = "User Balance is : ";
        uint user_bal = user_account.balance;
-       emit CheckBalance(data, user_bal );
+       emit CheckBalance(user_bal);
        return (user_bal);
-
     }
 }
